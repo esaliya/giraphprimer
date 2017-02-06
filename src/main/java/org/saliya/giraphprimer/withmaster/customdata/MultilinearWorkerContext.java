@@ -80,6 +80,10 @@ public class MultilinearWorkerContext extends WorkerContext{
             // before any of those are used we let got of superstep zero on master.
             if (ss == 0) return;
 
+            if (workerSteps == 0){
+                System.out.println("*************Error: ss=" + ss);
+            }
+
             int localSS = (int)ss % workerSteps;
             // The external loop number that goes from 0 to twoRaisedToK (excluding)
             int iter = (int)ss / workerSteps;
