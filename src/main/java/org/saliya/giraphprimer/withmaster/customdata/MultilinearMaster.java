@@ -80,7 +80,10 @@ public class MultilinearMaster extends DefaultMasterCompute {
         int add(int x, int y) {
             // this was necessary because the first call to aggregate comes before
             // preApplication in WorkerContext, where gf is null
-            if (gf == null) return 0;
+            if (gf == null) {
+                System.out.println("GF is null in aggregator");
+                return 0;
+            }
             return gf.add(x,y);
         }
     }
