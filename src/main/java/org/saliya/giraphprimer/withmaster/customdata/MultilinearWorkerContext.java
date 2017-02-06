@@ -19,6 +19,7 @@ public class MultilinearWorkerContext extends WorkerContext{
 
     static int workerSteps;
     static int twoRaisedToK;
+    static int fieldSize;
     static GaloisField gf = null;
 
     int n;
@@ -26,7 +27,6 @@ public class MultilinearWorkerContext extends WorkerContext{
     int numColors;
     long randomSeed;
     int [] randomAssignment;
-    int fieldSize;
 
     @Override
     public void preApplication() throws InstantiationException, IllegalAccessException {
@@ -73,6 +73,14 @@ public class MultilinearWorkerContext extends WorkerContext{
         public void compute() {
             System.out.println("Master compute outer loop: " + getSuperstep() );
             long ss = getSuperstep();
+
+            // nothing to do on superstep zero on master compute
+            // this is done because preApplication() in WorkerContext runs
+            // only after master compute() but before worker compute()
+            // so to make sure initialization work in preApplication() has happened
+            // before any of those are used we let got of superstep zero on master.
+            if (ss == 0) return;
+
             int localSS = (int)ss % workerSteps;
             // The external loop number that goes from 0 to twoRaisedToK (excluding)
             int iter = (int)ss / workerSteps;
@@ -100,14 +108,23 @@ public class MultilinearWorkerContext extends WorkerContext{
     }
 
     public static class GaloisFieldAggregator extends BasicAggregator<IntWritable>{
+
         @Override
         public void aggregate(IntWritable value) {
-            getAggregatedValue().set(gf.add(getAggregatedValue().get(), value.get()));
+            getAggregatedValue().set(add(getAggregatedValue().get(), value.get()));
         }
 
         @Override
         public IntWritable createInitialValue() {
             return new IntWritable(0);
+        }
+
+
+        int add(int x, int y) {
+            // this was necessary because the first call to aggregate comes before
+            // preApplication in WorkerContext, where gf is null
+            if (gf == null) return 0;
+            return gf.add(x,y);
         }
     }
 
