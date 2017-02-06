@@ -35,8 +35,9 @@ public class MultilinearMaster extends DefaultMasterCompute {
         int totalSum = 0;
         if (ss > 0 && localSS == 0){
             // get the aggregated value from previous loop (of 2^k loops)
-            totalSum = gf.add(totalSum,
-                    this.<IntWritable>getAggregatedValue(MULTILINEAR_CIRCUIT_SUM).get());
+            int aggregatedValue = this.<IntWritable>getAggregatedValue(MULTILINEAR_CIRCUIT_SUM).get();
+            System.out.println("DEBUG: aggregated value: " + aggregatedValue + " iter:  " + iter);
+            totalSum = gf.add(totalSum, aggregatedValue);
         }
 
         if (iter == twoRaisedToK){
