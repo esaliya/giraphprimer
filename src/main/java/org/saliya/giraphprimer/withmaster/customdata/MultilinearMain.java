@@ -66,7 +66,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-w", workers,
                 "-ca", "mapred.job.tracker="+jobTrackerURL,
                 "-ca", "giraph.SplitMasterWorker="+splitMasterWorker,
-                "-ca", "giraph.masterComputeClass="+MultilinearWorkerContext.MultilinearMaster.class.getName(),
+                "-ca", "giraph.masterComputeClass="+MultilinearMaster.class.getName(),
                 "-ca", "giraph.workerContextClass="+MultilinearWorkerContext.class.getName()}));
     }
 

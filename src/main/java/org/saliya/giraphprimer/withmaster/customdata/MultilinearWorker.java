@@ -94,7 +94,7 @@ public class MultilinearWorker extends BasicComputation<
             }
 
         } else {
-            aggregate(MultilinearWorkerContext.MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
+            aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
                     new IntWritable(gf.ffMultiply(
                             vData.randomWeightToComputeCircuitSum, vData.vertexRow[mwc.k])));
         }
