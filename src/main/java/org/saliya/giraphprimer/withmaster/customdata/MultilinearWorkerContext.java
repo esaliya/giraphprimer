@@ -71,7 +71,6 @@ public class MultilinearWorkerContext extends WorkerContext{
 
         @Override
         public void compute() {
-            System.out.println("Master compute outer loop: " + getSuperstep() );
             long ss = getSuperstep();
 
             // nothing to do on superstep zero on master compute

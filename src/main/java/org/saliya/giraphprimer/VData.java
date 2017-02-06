@@ -34,7 +34,6 @@ public class VData implements WritableComparable<VData> {
 
     @Override
     public void write(DataOutput out) throws IOException {
-        System.out.println("write called for v: " + vertexId);
         out.writeInt(vertexId);
         out.writeInt(vertexColor);
         out.writeInt(randomWeightToComputeCircuitSum);
@@ -48,7 +47,6 @@ public class VData implements WritableComparable<VData> {
     @Override
     public void readFields(DataInput in) throws IOException {
         vertexId = in.readInt();
-        System.out.println("read called for v: " + vertexId);
         vertexColor = in.readInt();
         randomWeightToComputeCircuitSum = in.readInt();
         vertexRowLength = in.readInt();
