@@ -2,6 +2,8 @@ package org.saliya.giraphprimer;
 
 
 import org.apache.giraph.Algorithm;
+import org.apache.giraph.GiraphRunner;
+import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.conf.LongConfOption;
 import org.apache.giraph.edge.Edge;
@@ -9,6 +11,7 @@ import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -20,7 +23,7 @@ import java.io.IOException;
         name = "Shortest paths",
         description = "Finds all shortest paths from a selected vertex"
 )
-public class GiraphTest extends BasicComputation<
+public class GiraphShortestPath extends BasicComputation<
         LongWritable, DoubleWritable, FloatWritable, DoubleWritable> {
     /** The shortest paths id */
     public static final LongConfOption SOURCE_ID =
@@ -28,7 +31,7 @@ public class GiraphTest extends BasicComputation<
                     "The shortest paths id");
     /** Class logger */
     private static final Logger LOG =
-            Logger.getLogger(GiraphTest.class);
+            Logger.getLogger(GiraphShortestPath.class);
 
     /**
      * Is this vertex the source id?
@@ -67,5 +70,10 @@ public class GiraphTest extends BasicComputation<
             }
         }
         vertex.voteToHalt();
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        System.exit(ToolRunner.run(new GiraphRunner(), args));
     }
 }
