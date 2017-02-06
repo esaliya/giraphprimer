@@ -30,6 +30,7 @@ public class MultilinearWorkerContext extends WorkerContext{
 
     @Override
     public void preApplication() throws InstantiationException, IllegalAccessException {
+        System.out.println("### Call to preApplication on" + getMyWorkerIndex());
         Configuration conf = getConf();
         n = conf.getInt(MultilinearMain.MULTILINEAR_N, -1);
         k = conf.getInt(MultilinearMain.MULTILINEAR_K, -1);
@@ -82,6 +83,7 @@ public class MultilinearWorkerContext extends WorkerContext{
 
             if (workerSteps == 0){
                 System.out.println("*************Error: ss=" + ss);
+
             }
 
             int localSS = (int)ss % workerSteps;
