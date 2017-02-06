@@ -1,8 +1,11 @@
 package org.saliya.giraphprimer.withmaster.customdata;
 
+import org.apache.giraph.aggregators.BasicAggregator;
+import org.apache.giraph.aggregators.DoubleMaxAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
 import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
 import org.saliya.giraphprimer.multilinear.Utils;
@@ -14,16 +17,16 @@ import java.util.Random;
  */
 public class MultilinearWorkerContext extends WorkerContext{
 
+    static int workerSteps;
+    static int twoRaisedToK;
+    static GaloisField gf = null;
+
     int n;
     int k;
     int numColors;
-    int twoRaisedToK;
-    Random random;
+    long randomSeed;
     int [] randomAssignment;
-    GaloisField gf = null;
     int fieldSize;
-
-    static int workerSteps;
 
     @Override
     public void preApplication() throws InstantiationException, IllegalAccessException {
@@ -45,8 +48,7 @@ public class MultilinearWorkerContext extends WorkerContext{
         for (int i = 0; i < numColors; ++i){
             randomAssignment[i] = r.nextInt(twoRaisedToK);
         }
-        long randomSeed = r.nextLong();
-        random = new Random(randomSeed);
+        randomSeed = r.nextLong();
     }
 
     @Override
@@ -65,14 +67,48 @@ public class MultilinearWorkerContext extends WorkerContext{
     }
 
     public static class MultilinearMaster extends DefaultMasterCompute{
+        public static final String MULTILINEAR_CIRCUIT_SUM="multilinear.circuitsum";
+
         @Override
         public void compute() {
             System.out.println("Master compute outer loop: " + getSuperstep() );
+            long ss = getSuperstep();
+            int localSS = (int)ss % workerSteps;
+            // The external loop number that goes from 0 to twoRaisedToK (excluding)
+            int iter = (int)ss / workerSteps;
 
+            int totalSum = 0;
+            if (ss > 0 && localSS == 0){
+                // get the aggregated value from previous loop (of 2^k loops)
+                totalSum = gf.add(totalSum,
+                        this.<IntWritable>getAggregatedValue(MULTILINEAR_CIRCUIT_SUM).get());
+            }
+
+            if (iter == twoRaisedToK){
+                // End of computation and application
+                boolean answer = totalSum > 0;
+                System.out.println("*** End of program returned " + answer);
+                haltComputation();
+            }
 
         }
 
+        @Override
+        public void initialize() throws InstantiationException, IllegalAccessException {
+            registerAggregator(MULTILINEAR_CIRCUIT_SUM, GaloisFieldAggregator.class);
+        }
+    }
 
+    public static class GaloisFieldAggregator extends BasicAggregator<IntWritable>{
+        @Override
+        public void aggregate(IntWritable value) {
+            getAggregatedValue().set(gf.add(getAggregatedValue().get(), value.get()));
+        }
+
+        @Override
+        public IntWritable createInitialValue() {
+            return new IntWritable(0);
+        }
     }
 
 }
