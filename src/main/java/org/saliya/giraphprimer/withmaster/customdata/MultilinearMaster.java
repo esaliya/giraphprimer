@@ -62,6 +62,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
         Random r = new Random(seed);
         gf = GaloisField.getInstance(1 << degree, Polynomial.createIrreducible(degree, r).toBigInteger().intValue());
         registerAggregator(MULTILINEAR_CIRCUIT_SUM, GaloisFieldAggregator.class);
+
     }
 
     public static class GaloisFieldAggregator extends BasicAggregator<IntWritable> {
@@ -80,11 +81,13 @@ public class MultilinearMaster extends DefaultMasterCompute {
         int add(int x, int y) {
             // this was necessary because the first call to aggregate comes before
             // preApplication in WorkerContext, where gf is null
-            if (gf == null) {
-                System.out.println("GF is null in aggregator");
-                return 0;
-            }
-            return gf.add(x,y);
+//            if (gf == null) {
+//                System.out.println("GF is null in aggregator");
+//                return 0;
+//            }
+//            return gf.add(x,y);
+
+            return x^y;
         }
     }
 }
