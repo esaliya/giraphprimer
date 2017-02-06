@@ -7,6 +7,7 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.*;
 import org.saliya.giraphprimer.IntArrayWritable;
+import org.saliya.giraphprimer.LongArrayWritable;
 import org.saliya.giraphprimer.VData;
 
 import java.io.IOException;
@@ -48,13 +49,15 @@ public class MultilinearWorker extends BasicComputation<
             vData.vertexRowLength = vData.vertexRow.length;
             vData.randomWeightToComputeCircuitSum = getRandomWeightToComputeCircuitSum(
                     new Random(mwc.randomSeed), fieldSize, vData.vertexId);
+            long[] nums = this.<LongArrayWritable>getBroadcast(MultilinearMaster.MULTILINEAR_RANDOM_NUMS).getData();
+            vData.uniqueRandomSeed = nums[vData.vertexId];
         }
         // In the original code I started from 2 and went till k (including)
         // we start localSS from zero, which is for initialization
         // then real work begins with localSS=1, which should give I=2, hence I=localSS+1
         int I = localSS+1;
         if (localSS == 0){
-            vData.random = new Random(mwc.randomSeed);
+            vData.random = new Random(vData.uniqueRandomSeed);
             IntStream.range(0, vData.vertexRowLength).forEach(x -> vData.vertexRow[x] = 0);
             // Set the last element to the vertex id, so when messages are collected
             // we can find which vertex it belongs to

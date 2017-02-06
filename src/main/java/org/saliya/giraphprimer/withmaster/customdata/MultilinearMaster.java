@@ -4,29 +4,40 @@ import org.apache.giraph.aggregators.BasicAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
+import org.saliya.giraphprimer.LongArrayWritable;
 import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
 import org.saliya.giraphprimer.multilinear.Utils;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * Saliya Ekanayake on 2/6/17.
  */
 public class MultilinearMaster extends DefaultMasterCompute {
     public static final String MULTILINEAR_CIRCUIT_SUM="multilinear.circuitsum";
+    public static final String MULTILINEAR_RANDOM_NUMS="multilinear.random.nums";
 
     // Have to define these here as well because a worker context may
     // not be available where the master vertex runs
     public static GaloisField gf = null;
     int twoRaisedToK;
     int workerSteps;
+    int n;
     @Override
     public void compute() {
         long ss = getSuperstep();
 
         // nothing to do on superstep zero on master compute
-        if (ss == 0) return;
+        if (ss == 0) {
+            // Generate a random number array
+            long [] nums = new long[n];
+            Random random = new Random();
+            IntStream.range(0, n).forEach(x -> nums[x] = random.nextLong());
+            broadcast(MULTILINEAR_RANDOM_NUMS, new LongArrayWritable(nums));
+            return;
+        }
 
         int localSS = (int)ss % workerSteps;
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
@@ -52,6 +63,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
     @Override
     public void initialize() throws InstantiationException, IllegalAccessException {
         Configuration conf = getConf();
+        n = conf.getInt(MultilinearMain.MULTILINEAR_N, -1);
         int k = conf.getInt(MultilinearMain.MULTILINEAR_K, -1);
         int degree = 3+ Utils.log2(k);
         twoRaisedToK = 1 << k;

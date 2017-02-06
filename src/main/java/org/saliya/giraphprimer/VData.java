@@ -19,6 +19,7 @@ public class VData implements WritableComparable<VData> {
     public int[] vertexRow = null;
     public int randomWeightToComputeCircuitSum;
     public Random random;
+    public long uniqueRandomSeed;
 
     public VData(){}
 
