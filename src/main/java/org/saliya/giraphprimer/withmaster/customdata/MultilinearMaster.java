@@ -25,12 +25,16 @@ public class MultilinearMaster extends DefaultMasterCompute {
     int twoRaisedToK;
     int workerSteps;
     int n;
+
+    long startTime;
+
     @Override
     public void compute() {
         long ss = getSuperstep();
 
         // nothing to do on superstep zero on master compute
         if (ss == 0) {
+            startTime = System.currentTimeMillis();
             // Generate a random number array
             long [] nums = new long[n];
             Random random = new Random();
@@ -54,7 +58,8 @@ public class MultilinearMaster extends DefaultMasterCompute {
         if (iter == twoRaisedToK){
             // End of computation and application
             boolean answer = totalSum > 0;
-            System.out.println("*** End of program returned " + answer);
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println("*** End of program returned " + answer + " in " + duration + " ms");
             haltComputation();
         }
 
