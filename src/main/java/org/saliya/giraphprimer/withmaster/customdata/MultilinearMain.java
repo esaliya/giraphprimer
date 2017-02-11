@@ -49,6 +49,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
 
         int argIdx = 8;
         String numComputeThreads = (args.length > argIdx+1) ? args[argIdx+1] : "1";
+        String maxPartitionsInMemory = (args.length > argIdx+2) ? args[argIdx+2] : "100";
 
         GiraphConfiguration conf = new GiraphConfiguration();
         conf.setInt(MULTILINEAR_N, n);
@@ -75,6 +76,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "giraph.oneToAllMsgSending=true",
                 "-ca", "giraph.useNettyDirectMemory=true",
                 "-ca", "giraph.useUnsafeSerialization=true",
+                "-ca", "giraph.maxPartitionsInMemory="+maxPartitionsInMemory,
                 "-ca", "giraph.numComputeThreads="+numComputeThreads}));
     }
 
