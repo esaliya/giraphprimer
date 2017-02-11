@@ -47,6 +47,9 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
         String jobTrackerURL = args[7];
         String splitMasterWorker = args[8];
 
+        int argIdx = 8;
+        String numComputeThreads = (args.length > argIdx+1) ? args[argIdx+1] : 1;
+
         GiraphConfiguration conf = new GiraphConfiguration();
         conf.setInt(MULTILINEAR_N, n);
         conf.setInt(MULTILINEAR_K, k);
@@ -69,7 +72,10 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "giraph.masterComputeClass="+MultilinearMaster.class.getName(),
                 "-ca", "giraph.workerContextClass="+MultilinearWorkerContext.class.getName(),
                 "-ca", "giraph.useSuperstepCounters=false",
-                "-ca", "giraph.oneToAllMsgSending=true"}));
+                "-ca", "giraph.oneToAllMsgSending=true",
+                "-ca", "giraph.useNettyDirectMemory=true",
+                "-ca", "giraph.useUnsafeSerialization=true",
+                "-ca", "giraph.numComputeThreads="+numComputeThreads}));
     }
 
 
