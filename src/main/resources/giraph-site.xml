@@ -1,0 +1,4 @@
+<property>
+    <name>mapreduce.job.counters.limit</name>
+    <value>20000</value>
+</property>

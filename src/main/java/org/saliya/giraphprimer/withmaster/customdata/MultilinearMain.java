@@ -67,7 +67,9 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "mapred.job.tracker="+jobTrackerURL,
                 "-ca", "giraph.SplitMasterWorker="+splitMasterWorker,
                 "-ca", "giraph.masterComputeClass="+MultilinearMaster.class.getName(),
-                "-ca", "giraph.workerContextClass="+MultilinearWorkerContext.class.getName()}));
+                "-ca", "giraph.workerContextClass="+MultilinearWorkerContext.class.getName(),
+                "-ca", "giraph.useSuperstepCounters=false",
+                "-ca", "giraph.oneToAllMsgSending=true"}));
     }
 
 
