@@ -48,7 +48,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
         String splitMasterWorker = args[8];
 
         int argIdx = 8;
-        String numComputeThreads = (args.length > argIdx+1) ? args[argIdx+1] : 1;
+        String numComputeThreads = (args.length > argIdx+1) ? args[argIdx+1] : "1";
 
         GiraphConfiguration conf = new GiraphConfiguration();
         conf.setInt(MULTILINEAR_N, n);

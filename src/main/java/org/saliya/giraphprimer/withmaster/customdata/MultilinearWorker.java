@@ -92,8 +92,9 @@ public class MultilinearWorker extends BasicComputation<
         }
 
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
+            IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
             for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
-                sendMessage(edge.getTargetVertexId(), new IntArrayWritable(vData.vertexRow));
+                sendMessage(edge.getTargetVertexId(), message);
             }
 
         } else {
