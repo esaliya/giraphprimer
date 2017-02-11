@@ -59,7 +59,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
             // End of computation and application
             boolean answer = totalSum > 0;
             long duration = System.currentTimeMillis() - startTime;
-            System.out.println("*** End of program returned " + answer + " in " + duration + " ms");
+            System.out.println("*** End of program returned " + answer + " in " + duration + " ms  total supersteps " + getSuperstep());
             haltComputation();
         }
 
