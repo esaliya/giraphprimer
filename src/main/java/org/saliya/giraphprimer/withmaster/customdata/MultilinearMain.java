@@ -64,7 +64,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-vof", "org.apache.giraph.io.formats.IdWithValueTextOutputFormat",
                 "-op", outputPath,
                 "-w", workers,
-                "-ca", "mapred.job.tracker.address="+jobTrackerURL,
+                "-ca", "mapred.job.tracker="+jobTrackerURL,
                 "-ca", "giraph.SplitMasterWorker="+splitMasterWorker,
                 "-ca", "giraph.masterComputeClass="+MultilinearMaster.class.getName(),
                 "-ca", "giraph.workerContextClass="+MultilinearWorkerContext.class.getName(),
