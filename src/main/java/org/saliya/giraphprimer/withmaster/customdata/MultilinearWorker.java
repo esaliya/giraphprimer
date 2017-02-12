@@ -84,8 +84,8 @@ public class MultilinearWorker extends BasicComputation<
             for (IntArrayWritable message: messages){
                 int [] data = message.getData();
                 // TODO: debug - let's fake to reduce comm.
-//                messagesSortedByVertexId.put(data[vData.vertexRowLength-1], data);
-                messagesSortedByVertexId.put(data[data.length - 1], data);
+                messagesSortedByVertexId.put(data[vData.vertexRowLength-1], data);
+//                messagesSortedByVertexId.put(data[data.length - 1], data);
             }
             sortTime += System.currentTimeMillis() - t;
 
@@ -95,8 +95,8 @@ public class MultilinearWorker extends BasicComputation<
                 for (int neighbor: neighborsInAscendingOrder) {
                     int weight = vData.random.nextInt(fieldSize);
                     // TODO: debug - let's fake to reduce comm. The side effect is we don't have this, so let's make it constant
-//                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor)[I - j]);
-                    int product = gf.ffMultiply(vData.vertexRow[j], 1);
+                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor)[I - j]);
+//                    int product = gf.ffMultiply(vData.vertexRow[j], 1);
                     product = gf.ffMultiply(weight, product);
                     vData.vertexRow[I] = gf.add(vData.vertexRow[I], product);
                 }
@@ -107,8 +107,8 @@ public class MultilinearWorker extends BasicComputation<
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
             long t = System.currentTimeMillis();
             // TODO: debug - let's fake to reduce this
-//            IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
-            IntArrayWritable message = new IntArrayWritable(new int[]{vData.vertexId});
+            IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
+//            IntArrayWritable message = new IntArrayWritable(new int[]{vData.vertexId});
             for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
                 sendMessage(edge.getTargetVertexId(), message);
             }
