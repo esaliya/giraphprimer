@@ -6,10 +6,12 @@ import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.*;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.saliya.giraphprimer.IntArrayWritable;
 import org.saliya.giraphprimer.LongArrayWritable;
 import org.saliya.giraphprimer.VData;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
@@ -30,6 +32,9 @@ public class MultilinearWorker extends BasicComputation<
         IntWritable, VData, NullWritable, IntArrayWritable> {
 
     private MultilinearWorkerContext mwc;
+    private long computeTime = 0L;
+    private long sortTime = 0L;
+    private long sendTime = 0L; // I doubt this would be meaningful because it seems like an async call
 
     @Override
     public void compute(
@@ -74,12 +79,15 @@ public class MultilinearWorker extends BasicComputation<
                 System.out.println("Vertex: " + vertex.getId().get() + " i: " + I + " ss: " + ss + " localSS: " + localSS + " iter: " + iter);
             }*/
 
+            long t = System.currentTimeMillis();
             TreeMap<Integer, int[]> messagesSortedByVertexId = new TreeMap<>();
             for (IntArrayWritable message: messages){
                 int [] data = message.getData();
                 messagesSortedByVertexId.put(data[vData.vertexRowLength-1], data);
             }
+            sortTime += System.currentTimeMillis() - t;
 
+            t = System.currentTimeMillis();
             Set<Integer> neighborsInAscendingOrder = messagesSortedByVertexId.keySet();
             for (int j = 1; j < I; j++) {
                 for (int neighbor: neighborsInAscendingOrder) {
@@ -89,13 +97,16 @@ public class MultilinearWorker extends BasicComputation<
                     vData.vertexRow[I] = gf.add(vData.vertexRow[I], product);
                 }
             }
+            computeTime += System.currentTimeMillis() - t;
         }
 
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
+            long t = System.currentTimeMillis();
             IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
             for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
                 sendMessage(edge.getTargetVertexId(), message);
             }
+            sendTime += System.currentTimeMillis() - t;
 
         } else {
             aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
@@ -105,6 +116,8 @@ public class MultilinearWorker extends BasicComputation<
 
 
         if (iter == (MultilinearWorkerContext.twoRaisedToK -1) && localSS == (MultilinearWorkerContext.workerSteps -1)){
+            aggregate(MultilinearMaster.MULTILINEAR_SORT_TIME, new LongWritable(sortTime));
+            aggregate(MultilinearMaster.MULTILINEAR_COMPUTE_TIME, new LongWritable(computeTime));
             vertex.voteToHalt();
         }
     }

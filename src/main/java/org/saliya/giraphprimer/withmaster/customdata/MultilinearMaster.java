@@ -1,9 +1,12 @@
 package org.saliya.giraphprimer.withmaster.customdata;
 
 import org.apache.giraph.aggregators.BasicAggregator;
+import org.apache.giraph.aggregators.IntSumAggregator;
+import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.saliya.giraphprimer.LongArrayWritable;
 import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
@@ -18,6 +21,9 @@ import java.util.stream.IntStream;
 public class MultilinearMaster extends DefaultMasterCompute {
     public static final String MULTILINEAR_CIRCUIT_SUM="multilinear.circuitsum";
     public static final String MULTILINEAR_RANDOM_NUMS="multilinear.random.nums";
+    public static final String MULTILINEAR_COMPUTE_TIME="multilinear.compute.time";
+    public static final String MULTILINEAR_SORT_TIME="multilinear.sort.time";
+    public static final String MULTILINEAR_SEND_TIME="multilinear.send.time";
 
     // Have to define these here as well because a worker context may
     // not be available where the master vertex runs
@@ -27,6 +33,8 @@ public class MultilinearMaster extends DefaultMasterCompute {
     int n;
 
     long startTime;
+
+    private long aggregateTime = 0L;
 
     @Override
     public void compute() {
@@ -49,8 +57,10 @@ public class MultilinearMaster extends DefaultMasterCompute {
 
         int totalSum = 0;
         if (ss > 0 && localSS == 0){
+            long t = System.currentTimeMillis();
             // get the aggregated value from previous loop (of 2^k loops)
             int aggregatedValue = this.<IntWritable>getAggregatedValue(MULTILINEAR_CIRCUIT_SUM).get();
+            aggregateTime += System.currentTimeMillis() - t;
             //System.out.println("DEBUG: aggregated value: " + aggregatedValue + " iter:  " + iter);
             totalSum = gf.add(totalSum, aggregatedValue);
         }
@@ -59,7 +69,13 @@ public class MultilinearMaster extends DefaultMasterCompute {
             // End of computation and application
             boolean answer = totalSum > 0;
             long duration = System.currentTimeMillis() - startTime;
-            System.out.println("*** End of program returned " + answer + " in " + duration + " ms  total supersteps " + getSuperstep() + " iter: " + iter + " localSS: " + localSS + " workerSteps: " + workerSteps + " k:" + getConf().getInt(MultilinearMain.MULTILINEAR_K, -1));
+            long totalComputeTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_COMPUTE_TIME).get();
+            long totalSortTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_SORT_TIME).get();
+            long totalSortPlusComputeTime = totalComputeTime + totalSortTime;
+            long totalSendTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_SEND_TIME).get();
+
+//            System.out.println("*** End of program returned " + answer + " in " + duration + " ms  total supersteps " + getSuperstep() + " iter: " + iter + " localSS: " + localSS + " workerSteps: " + workerSteps + " k:" + getConf().getInt(MultilinearMain.MULTILINEAR_K, -1));
+            System.out.println("*** End of program returned " + answer + " in " + duration + " ms totalComputeTime: " + totalComputeTime + " ms totalSortTime: " + totalSortTime + " ms totalSortPlusComputePercent " + (totalSortPlusComputeTime*100.0/duration) + " aggregatePercent " + (aggregateTime*100.0/duration) + " sendPercent (wouldn't work (will be zero) cuz of async call)" + (totalSendTime*100.0/duration));
             haltComputation();
         }
 
@@ -79,6 +95,9 @@ public class MultilinearMaster extends DefaultMasterCompute {
         Random r = new Random(seed);
         gf = GaloisField.getInstance(1 << degree, Polynomial.createIrreducible(degree, r).toBigInteger().intValue());
         registerAggregator(MULTILINEAR_CIRCUIT_SUM, GaloisFieldAggregator.class);
+        registerAggregator(MULTILINEAR_COMPUTE_TIME, LongSumAggregator.class);
+        registerAggregator(MULTILINEAR_SORT_TIME, LongSumAggregator.class);
+        registerAggregator(MULTILINEAR_SEND_TIME, LongSumAggregator.class);
 
     }
 
