@@ -23,7 +23,6 @@ public class MultilinearMaster extends DefaultMasterCompute {
     public static final String MULTILINEAR_RANDOM_NUMS="multilinear.random.nums";
     public static final String MULTILINEAR_COMPUTE_TIME="multilinear.compute.time";
     public static final String MULTILINEAR_SORT_TIME="multilinear.sort.time";
-    public static final String MULTILINEAR_SEND_TIME="multilinear.send.time";
 
     // Have to define these here as well because a worker context may
     // not be available where the master vertex runs
@@ -72,10 +71,9 @@ public class MultilinearMaster extends DefaultMasterCompute {
             long totalComputeTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_COMPUTE_TIME).get();
             long totalSortTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_SORT_TIME).get();
             long totalSortPlusComputeTime = totalComputeTime + totalSortTime;
-            long totalSendTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_SEND_TIME).get();
 
 //            System.out.println("*** End of program returned " + answer + " in " + duration + " ms  total supersteps " + getSuperstep() + " iter: " + iter + " localSS: " + localSS + " workerSteps: " + workerSteps + " k:" + getConf().getInt(MultilinearMain.MULTILINEAR_K, -1));
-            System.out.println("*** End of program returned " + answer + " in " + duration + " ms totalComputeTime: " + totalComputeTime + " ms totalSortTime: " + totalSortTime + " ms totalSortPlusComputePercent " + (totalSortPlusComputeTime*100.0/duration) + " aggregatePercent " + (aggregateTime*100.0/duration) + " sendPercent (wouldn't work (will be zero) cuz of async call)" + (totalSendTime*100.0/duration));
+            System.out.println("*** End of program returned " + answer + " in " + duration + " ms avgComputeTime(perVertex): " + (totalComputeTime*1.0/n) + " ms avgSortTime(perVertex): " + (totalSortTime*1.0/n) + " ms avgSortPlusComputePercent(perVertex) " + (totalSortPlusComputeTime*100.0/(n*duration)) + " aggregatePercent " + (aggregateTime*100.0/duration));
             haltComputation();
         }
 
@@ -95,10 +93,8 @@ public class MultilinearMaster extends DefaultMasterCompute {
         Random r = new Random(seed);
         gf = GaloisField.getInstance(1 << degree, Polynomial.createIrreducible(degree, r).toBigInteger().intValue());
         registerAggregator(MULTILINEAR_CIRCUIT_SUM, GaloisFieldAggregator.class);
-        registerAggregator(MULTILINEAR_COMPUTE_TIME, LongSumAggregator.class);
+        registerAggregator(MULTILINEAR_COMPUTE_TIME,  LongSumAggregator.class);
         registerAggregator(MULTILINEAR_SORT_TIME, LongSumAggregator.class);
-        registerAggregator(MULTILINEAR_SEND_TIME, LongSumAggregator.class);
-
     }
 
     public static class GaloisFieldAggregator extends BasicAggregator<IntWritable> {

@@ -34,7 +34,6 @@ public class MultilinearWorker extends BasicComputation<
     private MultilinearWorkerContext mwc;
     private long computeTime = 0L;
     private long sortTime = 0L;
-    private long sendTime = 0L; // I doubt this would be meaningful because it seems like an async call
 
     @Override
     public void compute(
@@ -102,12 +101,10 @@ public class MultilinearWorker extends BasicComputation<
         }
 
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
-            long t = System.currentTimeMillis();
             IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
             for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
                 sendMessage(edge.getTargetVertexId(), message);
             }
-            sendTime += System.currentTimeMillis() - t;
 
         } else {
             aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
