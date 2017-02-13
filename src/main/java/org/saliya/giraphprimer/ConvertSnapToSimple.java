@@ -14,9 +14,9 @@ import java.util.stream.IntStream;
  */
 public class ConvertSnapToSimple {
     public static void main(String[] args) {
-        String f = "/Users/esaliya/sali/projects/graphs/giraph/data/snap/p2p-Gnutella04.txt";
+        String f = args[0];
+        int maxNodeCount = Integer.parseInt(args[1]);
         int k = 8;
-        int maxNodeCount = 10876;
 
         File file = new File(f);
         String parent = file.getParent();

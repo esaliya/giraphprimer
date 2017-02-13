@@ -12,6 +12,9 @@ import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
 import org.saliya.giraphprimer.multilinear.Utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -24,6 +27,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
     public static final String MULTILINEAR_COMPUTE_TIME="multilinear.compute.time";
     public static final String MULTILINEAR_SORT_TIME="multilinear.sort.time";
 
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // Have to define these here as well because a worker context may
     // not be available where the master vertex runs
     public static GaloisField gf = null;
@@ -64,6 +68,10 @@ public class MultilinearMaster extends DefaultMasterCompute {
             totalSum = gf.add(totalSum, aggregatedValue);
         }
 
+        if (iter%10 == 0 && localSS == 0){
+            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + formatElapsedMillis(System.currentTimeMillis() - startTime));
+        }
+
         if (iter == twoRaisedToK){
             // End of computation and application
             boolean answer = totalSum > 0;
@@ -95,6 +103,19 @@ public class MultilinearMaster extends DefaultMasterCompute {
         registerAggregator(MULTILINEAR_CIRCUIT_SUM, GaloisFieldAggregator.class);
         registerAggregator(MULTILINEAR_COMPUTE_TIME,  LongSumAggregator.class);
         registerAggregator(MULTILINEAR_SORT_TIME, LongSumAggregator.class);
+    }
+
+    String formatElapsedMillis(long elapsed){
+        String format = "%dd:%02dH:%02dM:%02dS:%03dmS";
+        short millis = (short)(elapsed % (1000.0));
+        elapsed = (elapsed - millis) / 1000; // remaining elapsed in seconds
+        byte seconds = (byte)(elapsed % 60.0);
+        elapsed = (elapsed - seconds) / 60; // remaining elapsed in minutes
+        byte minutes =  (byte)(elapsed % 60.0);
+        elapsed = (elapsed - minutes) / 60; // remaining elapsed in hours
+        byte hours = (byte)(elapsed % 24.0);
+        long days = (elapsed - hours) / 24; // remaining elapsed in days
+        return String.format(format, days, hours, minutes,  seconds, millis);
     }
 
     public static class GaloisFieldAggregator extends BasicAggregator<IntWritable> {
