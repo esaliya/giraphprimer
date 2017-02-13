@@ -101,10 +101,12 @@ public class MultilinearWorker extends BasicComputation<
         }
 
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
+
             IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
-            for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
-                sendMessage(edge.getTargetVertexId(), message);
-            }
+            sendMessageToAllEdges(vertex, message);
+//            for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
+//                sendMessage(edge.getTargetVertexId(), message);
+//            }
 
         } else {
             aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,

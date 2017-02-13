@@ -57,6 +57,9 @@ public class MultilinearMaster extends DefaultMasterCompute {
         int localSS = (int)ss % workerSteps;
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
         int iter = (int)ss / workerSteps;
+        if (iter%10 == 0 && localSS == 0){
+            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + formatElapsedMillis(System.currentTimeMillis() - startTime));
+        }
 
         int totalSum = 0;
         if (ss > 0 && localSS == 0){
@@ -68,9 +71,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
             totalSum = gf.add(totalSum, aggregatedValue);
         }
 
-        if (iter%10 == 0 && localSS == 0){
-            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + formatElapsedMillis(System.currentTimeMillis() - startTime));
-        }
+
 
         if (iter == twoRaisedToK){
             // End of computation and application
@@ -80,7 +81,6 @@ public class MultilinearMaster extends DefaultMasterCompute {
             long totalSortTime = this.<LongWritable>getAggregatedValue(MULTILINEAR_SORT_TIME).get();
             long totalSortPlusComputeTime = totalComputeTime + totalSortTime;
 
-//            System.out.println("*** End of program returned " + answer + " in " + duration + " ms  total supersteps " + getSuperstep() + " iter: " + iter + " localSS: " + localSS + " workerSteps: " + workerSteps + " k:" + getConf().getInt(MultilinearMain.MULTILINEAR_K, -1));
             System.out.println("*** End of program returned " + answer + " in " + duration + " ms avgComputeTime(perVertex): " + (totalComputeTime*1.0/n) + " ms avgSortTime(perVertex): " + (totalSortTime*1.0/n) + " ms avgSortPlusComputePercent(perVertex) " + (totalSortPlusComputeTime*100.0/(n*duration)) + " aggregatePercent " + (aggregateTime*100.0/duration));
             haltComputation();
         }
