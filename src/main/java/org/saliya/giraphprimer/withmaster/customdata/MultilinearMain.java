@@ -78,7 +78,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "giraph.useNettyDirectMemory=true",
                 "-ca", "giraph.useUnsafeSerialization=true",
                 "-ca", "giraph.maxPartitionsInMemory="+maxPartitionsInMemory,
-                "-ca", "mapred.child.java.opts=\"-Xmx "+Xmx+"\"G",
+                "-ca", "mapred.child.java.opts=\"-Xmx"+Xmx+"\"G",
                 "-ca", "giraph.numComputeThreads="+numComputeThreads}));
     }
 
