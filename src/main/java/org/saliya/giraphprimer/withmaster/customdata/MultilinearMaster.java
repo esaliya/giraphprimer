@@ -57,7 +57,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
         int localSS = (int)ss % workerSteps;
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
         int iter = (int)ss / workerSteps;
-        if (iter%10 == 0 && localSS == 0){
+        if ((iter%10 == 0 || iter < 10) && localSS == 0 ){
             System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + formatElapsedMillis(System.currentTimeMillis() - startTime));
         }
 
