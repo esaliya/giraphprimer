@@ -84,6 +84,8 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "giraph.vertexRequestSize=" + requestSize,
                 "-ca", "giraph.edgeRequestSize=" + requestSize,
                 "-ca", "giraph.msgRequestSize=" + requestSize,
+                "-ca", "giraph.clientSendBufferSize=" + requestSize,
+                "-ca", "giraph.checkpointFrequency=0",
                 "-ca", "giraph.numComputeThreads="+numComputeThreads}));
     }
 
