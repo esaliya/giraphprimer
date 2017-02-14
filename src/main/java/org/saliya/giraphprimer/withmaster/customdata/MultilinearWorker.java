@@ -9,6 +9,7 @@ import org.apache.hadoop.io.*;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.saliya.giraphprimer.IntArrayWritable;
 import org.saliya.giraphprimer.LongArrayWritable;
+import org.saliya.giraphprimer.ShortArrayWritable;
 import org.saliya.giraphprimer.VData;
 
 import javax.swing.plaf.synth.SynthTextAreaUI;
@@ -29,7 +30,7 @@ import static org.saliya.giraphprimer.withmaster.customdata.MultilinearWorkerCon
         description = "Finds all shortest paths from a selected vertex"
 )
 public class MultilinearWorker extends BasicComputation<
-        IntWritable, VData, NullWritable, IntArrayWritable> {
+        IntWritable, VData, NullWritable, ShortArrayWritable> {
 
     private MultilinearWorkerContext mwc;
     private long computeTime = 0L;
@@ -38,7 +39,7 @@ public class MultilinearWorker extends BasicComputation<
     @Override
     public void compute(
             Vertex<IntWritable, VData, NullWritable> vertex,
-            Iterable<IntArrayWritable> messages) throws IOException {
+            Iterable<ShortArrayWritable> messages) throws IOException {
 
         VData vData = vertex.getValue();
 
@@ -49,8 +50,7 @@ public class MultilinearWorker extends BasicComputation<
         int iter = (int)ss / MultilinearWorkerContext.workerSteps;
         if (ss == 0){
             // Set array in vertex data
-            // We'll use the last element, i.e. k+1 idx, to keep track of the vertex id
-            vData.vertexRow = new int[mwc.k+2];
+            vData.vertexRow = new short[mwc.k+1];
             vData.vertexRowLength = vData.vertexRow.length;
             vData.randomWeightToComputeCircuitSum = getRandomWeightToComputeCircuitSum(
                     new Random(mwc.randomSeed), fieldSize, vData.vertexId);
@@ -64,12 +64,9 @@ public class MultilinearWorker extends BasicComputation<
         if (localSS == 0){
             vData.random = new Random(vData.uniqueRandomSeed);
             IntStream.range(0, vData.vertexRowLength).forEach(x -> vData.vertexRow[x] = 0);
-            // Set the last element to the vertex id, so when messages are collected
-            // we can find which vertex it belongs to
-            vData.vertexRow[vData.vertexRowLength-1] = vData.vertexId;
             int color = vData.vertexColor;
             int dotProduct = mwc.randomAssignment[color] & iter;
-            vData.vertexRow[1] = (Integer.bitCount(dotProduct) % 2 == 1) ? 0 : 1;
+            vData.vertexRow[1] = (short)((Integer.bitCount(dotProduct) % 2 == 1) ? 0 : 1);
 
         } else {
             // business logic only if localSS != 0
@@ -80,12 +77,12 @@ public class MultilinearWorker extends BasicComputation<
             }*/
 
             long t = System.currentTimeMillis();
-            TreeMap<Integer, IntArrayWritable> messagesSortedByVertexId = new TreeMap<>();
-            for (IntArrayWritable message: messages){
+            TreeMap<Integer, ShortArrayWritable> messagesSortedByVertexId = new TreeMap<>();
+            for (ShortArrayWritable message: messages){
                 // Now this data length is < vData.vertexRowLength
                 // because we only send the required elements for
                 // this iteration.
-                messagesSortedByVertexId.put(message.get(message.getLength() - 1), message);
+                messagesSortedByVertexId.put(message.getVertexId(), message);
             }
             sortTime += System.currentTimeMillis() - t;
 
@@ -96,7 +93,7 @@ public class MultilinearWorker extends BasicComputation<
                     int weight = vData.random.nextInt(fieldSize);
                     int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor).get(I - j));
                     product = gf.ffMultiply(weight, product);
-                    vData.vertexRow[I] = gf.add(vData.vertexRow[I], product);
+                    vData.vertexRow[I] = (short)gf.add(vData.vertexRow[I], product);
                 }
             }
             computeTime += System.currentTimeMillis() - t;
@@ -107,7 +104,7 @@ public class MultilinearWorker extends BasicComputation<
             // Let nextI = I+1, then we only need to send
             // elements from [1, nextI-1]
             int nextI = I+1;
-            IntArrayWritable message = new IntArrayWritable(vData.vertexRow, 1, nextI-1);
+            ShortArrayWritable message = new ShortArrayWritable(vData.vertexRow, vData.vertexId, 1, nextI-1);
             sendMessageToAllEdges(vertex, message);
 
         } else {

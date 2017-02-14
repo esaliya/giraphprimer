@@ -16,7 +16,7 @@ public class VData implements WritableComparable<VData> {
     public int vertexId = -1;
     public int vertexColor = -1;
     public int vertexRowLength = -1;
-    public int[] vertexRow = null;
+    public short[] vertexRow = null;
     public int randomWeightToComputeCircuitSum;
     public Random random;
     public long uniqueRandomSeed;
@@ -40,7 +40,7 @@ public class VData implements WritableComparable<VData> {
         out.writeInt(randomWeightToComputeCircuitSum);
         out.writeInt(vertexRowLength);
         for (int i = 0; i < vertexRowLength; ++i){
-            out.writeInt(vertexRow[i]);
+            out.writeShort(vertexRow[i]);
         }
 
     }
@@ -52,7 +52,7 @@ public class VData implements WritableComparable<VData> {
         randomWeightToComputeCircuitSum = in.readInt();
         vertexRowLength = in.readInt();
         for (int i = 0; i < vertexRowLength; ++i){
-            vertexRow[i] = in.readInt();
+            vertexRow[i] = in.readShort();
         }
     }
 
