@@ -80,13 +80,12 @@ public class MultilinearWorker extends BasicComputation<
             }*/
 
             long t = System.currentTimeMillis();
-            TreeMap<Integer, int[]> messagesSortedByVertexId = new TreeMap<>();
+            TreeMap<Integer, IntArrayWritable> messagesSortedByVertexId = new TreeMap<>();
             for (IntArrayWritable message: messages){
-                int [] data = message.getData();
                 // Now this data length is < vData.vertexRowLength
                 // because we only send the required elements for
                 // this iteration.
-                messagesSortedByVertexId.put(data[data.length-1], data);
+                messagesSortedByVertexId.put(message.get(message.getLength() - 1), message);
             }
             sortTime += System.currentTimeMillis() - t;
 
@@ -95,10 +94,7 @@ public class MultilinearWorker extends BasicComputation<
             for (int j = 1; j < I; j++) {
                 for (int neighbor: neighborsInAscendingOrder) {
                     int weight = vData.random.nextInt(fieldSize);
-                    // (I-j)-1 because now we want the original
-                    // (I-j) values to map to the one before the last (last element is vertexId)
-                    // element of the message array and so on (happens in descending order)
-                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor)[(I - j)-1]);
+                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor).get(I - j));
                     product = gf.ffMultiply(weight, product);
                     vData.vertexRow[I] = gf.add(vData.vertexRow[I], product);
                 }
