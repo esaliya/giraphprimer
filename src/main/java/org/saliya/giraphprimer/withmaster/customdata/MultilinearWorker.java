@@ -83,7 +83,10 @@ public class MultilinearWorker extends BasicComputation<
             TreeMap<Integer, int[]> messagesSortedByVertexId = new TreeMap<>();
             for (IntArrayWritable message: messages){
                 int [] data = message.getData();
-                messagesSortedByVertexId.put(data[vData.vertexRowLength-1], data);
+                // Now this data length is < vData.vertexRowLength
+                // because we only send the required elements for
+                // this iteration.
+                messagesSortedByVertexId.put(data[data.length-1], data);
             }
             sortTime += System.currentTimeMillis() - t;
 
@@ -92,7 +95,10 @@ public class MultilinearWorker extends BasicComputation<
             for (int j = 1; j < I; j++) {
                 for (int neighbor: neighborsInAscendingOrder) {
                     int weight = vData.random.nextInt(fieldSize);
-                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor)[I - j]);
+                    // (I-j)-1 because now we want the original
+                    // (I-j) values to map to the one before the last (last element is vertexId)
+                    // element of the message array and so on (happens in descending order)
+                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor)[(I - j)-1]);
                     product = gf.ffMultiply(weight, product);
                     vData.vertexRow[I] = gf.add(vData.vertexRow[I], product);
                 }
@@ -101,12 +107,12 @@ public class MultilinearWorker extends BasicComputation<
         }
 
         if (localSS != (MultilinearWorkerContext.workerSteps -1)){
-
-            IntArrayWritable message = new IntArrayWritable(vData.vertexRow);
+            // This message will be used in the I+1 iteration,
+            // Let nextI = I+1, then we only need to send
+            // elements from [1, nextI-1]
+            int nextI = I+1;
+            IntArrayWritable message = new IntArrayWritable(vData.vertexRow, 1, nextI-1);
             sendMessageToAllEdges(vertex, message);
-//            for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
-//                sendMessage(edge.getTargetVertexId(), message);
-//            }
 
         } else {
             aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
