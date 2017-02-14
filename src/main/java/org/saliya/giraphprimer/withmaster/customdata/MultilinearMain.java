@@ -51,7 +51,7 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
         String numComputeThreads = (args.length > argIdx+1) ? args[argIdx+1] : "1";
         String maxPartitionsInMemory = (args.length > argIdx+2) ? args[argIdx+2] : "100";
         String Xmx = (args.length > argIdx+3) ? args[argIdx+3] : "4";
-        String vertexRequestSize = (args.length > argIdx+4) ? args[argIdx+4] : "1024";
+        String requestSize = (args.length > argIdx+4) ? args[argIdx+4] : "1024";
 
         GiraphConfiguration conf = new GiraphConfiguration();
         conf.setInt(MULTILINEAR_N, n);
@@ -81,7 +81,9 @@ giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.Multilin
                 "-ca", "giraph.useUnsafeSerialization=true",
                 "-ca", "giraph.maxPartitionsInMemory="+maxPartitionsInMemory,
                 "-ca", "mapred.child.java.opts=\"-Xmx"+Xmx+"\"G",
-                "-ca", "giraph.vertexRequestSize=" + vertexRequestSize,
+                "-ca", "giraph.vertexRequestSize=" + requestSize,
+                "-ca", "giraph.edgeRequestSize=" + requestSize,
+                "-ca", "giraph.msgRequestSize=" + requestSize,
                 "-ca", "giraph.numComputeThreads="+numComputeThreads}));
     }
 
