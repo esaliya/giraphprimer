@@ -1,4 +1,4 @@
-package org.saliya.giraphprimer;
+package org.saliya.giraphprimer.multilinear.giraph;
 
 import org.apache.hadoop.io.Writable;
 

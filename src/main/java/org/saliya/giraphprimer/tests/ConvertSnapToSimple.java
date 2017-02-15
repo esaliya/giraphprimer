@@ -1,4 +1,4 @@
-package org.saliya.giraphprimer;
+package org.saliya.giraphprimer.tests;
 
 import com.google.common.base.Strings;
 

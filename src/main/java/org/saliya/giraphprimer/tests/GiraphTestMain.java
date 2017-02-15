@@ -1,4 +1,4 @@
-package org.saliya.giraphprimer.withmaster;
+package org.saliya.giraphprimer.tests.withmaster;
 
 import org.apache.giraph.GiraphRunner;
 import org.apache.giraph.conf.GiraphConfiguration;

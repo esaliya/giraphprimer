@@ -1,10 +1,9 @@
-package org.saliya.giraphprimer.withmaster.customdata;
+package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 
 import org.apache.giraph.GiraphRunner;
 import org.apache.giraph.conf.GiraphConfiguration;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
-import org.saliya.giraphprimer.VInputFormat;
+import org.saliya.giraphprimer.multilinear.giraph.VInputFormat;
 
 /**
  * Saliya Ekanayake on 2/2/17.
@@ -13,7 +12,7 @@ public class MultilinearMain {
 
     /*
 
-    org.saliya.giraphprimer.withmaster.customdata.MultilinearWorker
+    org.saliya.giraphprimer.multilinear.giraph.unweighted.MultilinearWorker
 -vif
 org.apache.giraph.io.formats.JsonLongDoubleFloatDoubleVertexInputFormat
 -vip
@@ -29,7 +28,7 @@ mapred.job.tracker=local
 -ca
 giraph.SplitMasterWorker=false
 -ca
-giraph.masterComputeClass=org.saliya.giraphprimer.withmaster.customdata.MultilinearMaster
+giraph.masterComputeClass=org.saliya.giraphprimer.multilinear.giraph.unweighted.MultilinearMaster
 
      */
     public static final String MULTILINEAR_N = "multilinear.n";

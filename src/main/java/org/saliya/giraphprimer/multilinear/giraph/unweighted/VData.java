@@ -1,6 +1,5 @@
-package org.saliya.giraphprimer;
+package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 

@@ -1,4 +1,4 @@
-package org.saliya.giraphprimer.withmaster;
+package org.saliya.giraphprimer.tests.withmaster;
 
 import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;

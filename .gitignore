@@ -18,6 +18,7 @@ out/
 target/
 .metadata/
 .idea/
+_bsp/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/

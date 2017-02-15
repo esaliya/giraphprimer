@@ -1,9 +1,8 @@
-package org.saliya.giraphprimer;
+package org.saliya.giraphprimer.tests;
 
 
 import org.apache.giraph.Algorithm;
 import org.apache.giraph.GiraphRunner;
-import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.conf.LongConfOption;
 import org.apache.giraph.edge.Edge;

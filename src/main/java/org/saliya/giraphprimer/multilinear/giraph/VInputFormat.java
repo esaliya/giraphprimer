@@ -1,16 +1,15 @@
-package org.saliya.giraphprimer;
+package org.saliya.giraphprimer.multilinear.giraph;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.io.formats.TextVertexInputFormat;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.saliya.giraphprimer.multilinear.giraph.unweighted.VData;
 
 import java.io.IOException;
 import java.util.List;

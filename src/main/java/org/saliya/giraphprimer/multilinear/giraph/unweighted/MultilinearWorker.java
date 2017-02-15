@@ -1,26 +1,18 @@
-package org.saliya.giraphprimer.withmaster.customdata;
+package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 
 
 import org.apache.giraph.Algorithm;
-import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.*;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-import org.saliya.giraphprimer.IntArrayWritable;
-import org.saliya.giraphprimer.LongArrayWritable;
-import org.saliya.giraphprimer.ShortArrayWritable;
-import org.saliya.giraphprimer.VData;
+import org.saliya.giraphprimer.multilinear.giraph.LongArrayWritable;
+import org.saliya.giraphprimer.multilinear.giraph.ShortArrayWritable;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
-
-import static org.saliya.giraphprimer.withmaster.customdata.MultilinearWorkerContext.fieldSize;
-import static org.saliya.giraphprimer.withmaster.customdata.MultilinearWorkerContext.gf;
 
 /**
  * Demonstrates the basic Pregel shortest paths implementation.
@@ -53,7 +45,7 @@ public class MultilinearWorker extends BasicComputation<
             vData.vertexRow = new short[mwc.k+1];
             vData.vertexRowLength = vData.vertexRow.length;
             vData.randomWeightToComputeCircuitSum = getRandomWeightToComputeCircuitSum(
-                    new Random(mwc.randomSeed), fieldSize, vData.vertexId);
+                    new Random(mwc.randomSeed), MultilinearWorkerContext.fieldSize, vData.vertexId);
             long[] nums = this.<LongArrayWritable>getBroadcast(MultilinearMaster.MULTILINEAR_RANDOM_NUMS).getData();
             vData.uniqueRandomSeed = nums[vData.vertexId];
         }
@@ -90,10 +82,10 @@ public class MultilinearWorker extends BasicComputation<
             Set<Integer> neighborsInAscendingOrder = messagesSortedByVertexId.keySet();
             for (int j = 1; j < I; j++) {
                 for (int neighbor: neighborsInAscendingOrder) {
-                    int weight = vData.random.nextInt(fieldSize);
-                    int product = gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor).get(I - j));
-                    product = gf.ffMultiply(weight, product);
-                    vData.vertexRow[I] = (short)gf.add(vData.vertexRow[I], product);
+                    int weight = vData.random.nextInt(MultilinearWorkerContext.fieldSize);
+                    int product = MultilinearWorkerContext.gf.ffMultiply(vData.vertexRow[j], messagesSortedByVertexId.get(neighbor).get(I - j));
+                    product = MultilinearWorkerContext.gf.ffMultiply(weight, product);
+                    vData.vertexRow[I] = (short) MultilinearWorkerContext.gf.add(vData.vertexRow[I], product);
                 }
             }
             computeTime += System.currentTimeMillis() - t;
@@ -109,7 +101,7 @@ public class MultilinearWorker extends BasicComputation<
 
         } else {
             aggregate(MultilinearMaster.MULTILINEAR_CIRCUIT_SUM,
-                    new IntWritable(gf.ffMultiply(
+                    new IntWritable(MultilinearWorkerContext.gf.ffMultiply(
                             vData.randomWeightToComputeCircuitSum, vData.vertexRow[mwc.k])));
         }
 

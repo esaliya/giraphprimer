@@ -1,13 +1,12 @@
-package org.saliya.giraphprimer.withmaster.customdata;
+package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 
 import org.apache.giraph.aggregators.BasicAggregator;
-import org.apache.giraph.aggregators.IntSumAggregator;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.saliya.giraphprimer.LongArrayWritable;
+import org.saliya.giraphprimer.multilinear.giraph.LongArrayWritable;
 import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
 import org.saliya.giraphprimer.multilinear.Utils;
