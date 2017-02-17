@@ -12,8 +12,11 @@ import org.saliya.giraphprimer.multilinear.Utils;
 import org.saliya.giraphprimer.multilinear.giraph.DoubleArrayListWritable;
 import org.saliya.giraphprimer.multilinear.giraph.LongArrayWritable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -34,11 +37,12 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     long mainSeed;
     String outputFile;
     double roundingFactor;
-    public static int r;
+    public int r;
     int workerSteps;
     int twoRaisedToK;
 
     long startTime;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public WeightedMultilinearMaster() {
 
@@ -63,8 +67,8 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             for (int i = weights.size() - 1; i >= weights.size() - k; i--) {
                 maxWeight += weights.get(i);
             }
-            System.out.println("*** Max Weight: " + maxWeight);
             r = (int) Math.ceil(Utils.logb((int) maxWeight + 1, roundingFactor));
+            System.out.println("*** Max Weight: " + maxWeight + " r: " + r);
             // invalid input: r is negative
             if (r < 0) {
                 throw new IllegalArgumentException("r must be a positive integer or 0");
@@ -78,6 +82,11 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         int localSS = (int)effectiveSS * workerSteps;
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
         int iter = (int)effectiveSS / workerSteps;
+
+        if ((iter%10 == 0 || iter < 10) && localSS == 0 ){
+            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " " +
+                    "elapsed " + Utils.formatElapsedMillis(System.currentTimeMillis() - startTime));
+        }
 
         if (effectiveSS > 0 && localSS == 0){
             // this indicates previous 2^k loop has finished,
