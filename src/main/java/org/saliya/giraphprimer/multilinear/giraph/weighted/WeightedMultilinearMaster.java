@@ -38,6 +38,8 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     int workerSteps;
     int twoRaisedToK;
 
+    long startTime;
+
     public WeightedMultilinearMaster() {
 
     }
@@ -47,6 +49,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         long ss = getSuperstep();
         if (ss == 0){
             // the entry point
+            startTime = System.currentTimeMillis();
             long [] nums = new long[n];
             Random r = new Random();
             IntStream.range(0, n).forEach(x -> nums[x] = r.nextLong());
@@ -86,7 +89,9 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         if (iter == twoRaisedToK){
             // TODO: do final computation of results
             double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
-            System.out.println("*** End of program bestScore for this giraph run: " + bestScore);
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
+                    duration +  " ms");
             haltComputation();
         }
 
