@@ -64,8 +64,8 @@ public class WeightedMultilinearMain {
         // TODO: Change this serial loop to submit parallely
         String date = dateFormat.format(new Date());
         // TODO: change loop to go from 0 to iter (now testing with 1 iter)
-        for (int i = 0; i < iter; i++) {
-//        for (int i = 0; i < 1; i++) {
+//        for (int i = 0; i < iter; i++) {
+        for (int i = 0; i < 1; i++) {
             String output = Paths.get(outputPath, date+"_iter_" + i + ".txt").toString();
             GiraphConfiguration conf = new GiraphConfiguration();
             conf.setInt(W_MULTILINEAR_N, n);
