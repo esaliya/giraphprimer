@@ -3,7 +3,6 @@ package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 import org.apache.giraph.GiraphRunner;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.hadoop.util.ToolRunner;
-import org.saliya.giraphprimer.multilinear.giraph.VInputFormat;
 
 /**
  * Saliya Ekanayake on 2/2/17.
@@ -66,8 +65,8 @@ giraph.masterComputeClass=org.saliya.giraphprimer.multilinear.giraph.unweighted.
                 MultilinearWorker.class.getName(),
                 "-vip", vertexInputPath,
                 "-vif", VInputFormat.class.getName(),
-                "-vof", "org.apache.giraph.io.formats.IdWithValueTextOutputFormat",
-                "-op", outputPath,
+//                "-vof", "org.apache.giraph.io.formats.IdWithValueTextOutputFormat",
+//                "-op", outputPath,
                 "-w", workers,
                 "-ca", "mapred.job.tracker="+jobTrackerURL,
                 "-ca", "giraph.SplitMasterWorker="+splitMasterWorker,

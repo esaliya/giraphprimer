@@ -57,7 +57,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
         int iter = (int)ss / workerSteps;
         if ((iter%10 == 0 || iter < 10) && localSS == 0 ){
-            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + formatElapsedMillis(System.currentTimeMillis() - startTime));
+            System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " elapsed " + Utils.formatElapsedMillis(System.currentTimeMillis() - startTime));
         }
 
         int totalSum = 0;
@@ -104,18 +104,7 @@ public class MultilinearMaster extends DefaultMasterCompute {
         registerAggregator(MULTILINEAR_SORT_TIME, LongSumAggregator.class);
     }
 
-    String formatElapsedMillis(long elapsed){
-        String format = "%dd:%02dH:%02dM:%02dS:%03dmS";
-        short millis = (short)(elapsed % (1000.0));
-        elapsed = (elapsed - millis) / 1000; // remaining elapsed in seconds
-        byte seconds = (byte)(elapsed % 60.0);
-        elapsed = (elapsed - seconds) / 60; // remaining elapsed in minutes
-        byte minutes =  (byte)(elapsed % 60.0);
-        elapsed = (elapsed - minutes) / 60; // remaining elapsed in hours
-        byte hours = (byte)(elapsed % 24.0);
-        long days = (elapsed - hours) / 24; // remaining elapsed in days
-        return String.format(format, days, hours, minutes,  seconds, millis);
-    }
+
 
     public static class GaloisFieldAggregator extends BasicAggregator<IntWritable> {
 

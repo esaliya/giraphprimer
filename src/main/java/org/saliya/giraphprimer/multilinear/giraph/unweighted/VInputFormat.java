@@ -1,4 +1,4 @@
-package org.saliya.giraphprimer.multilinear.giraph;
+package org.saliya.giraphprimer.multilinear.giraph.unweighted;
 
 import com.google.common.collect.Lists;
 import org.apache.giraph.edge.Edge;

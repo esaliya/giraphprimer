@@ -14,13 +14,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
-/**
- * Demonstrates the basic Pregel shortest paths implementation.
- */
-@Algorithm(
-        name = "Shortest paths",
-        description = "Finds all shortest paths from a selected vertex"
-)
 public class MultilinearWorker extends BasicComputation<
         IntWritable, VData, NullWritable, ShortArrayWritable> {
 
