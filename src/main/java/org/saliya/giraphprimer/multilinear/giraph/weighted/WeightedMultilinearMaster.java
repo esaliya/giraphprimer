@@ -106,7 +106,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             long compDuration = this.<LongWritable>getAggregatedValue(W_MULTILINEAR_COMP_TIME).get();
             System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
                     duration +  " ms iterations " + iter + " of " + twoRaisedToK + " compDuration: " +
-                    compDuration + " ms overhead(%)" + (compDuration*100.0/duration));
+                    compDuration + " ms overhead(%)" + (100.0-(compDuration*100.0/duration)));
             haltComputation();
         }
 
