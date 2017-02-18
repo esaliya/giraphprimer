@@ -42,6 +42,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     int twoRaisedToK;
 
     long startTime;
+    long compStartTime;
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public WeightedMultilinearMaster() {
@@ -74,6 +75,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
                 throw new IllegalArgumentException("r must be a positive integer or 0");
             }
             broadcast(W_MULTILINEAR_R, new IntWritable(r));
+            compStartTime = System.currentTimeMillis();
             return;
         }
 
@@ -99,10 +101,13 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
 //        if (iter == twoRaisedToK){
         if (iter == 1){
             double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
-            long duration = System.currentTimeMillis() - startTime;
+            long currentTime = System.currentTimeMillis();
+            long duration = currentTime - startTime;
+            long compDuration = currentTime - compStartTime;
+            long initDuration = compStartTime - startTime;
             System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
                     duration +  " ms iterations " + iter + " of " + twoRaisedToK + " expectedTime: " +
-                    duration*twoRaisedToK + " ms");
+                    (compDuration*twoRaisedToK+initDuration) + " ms");
             haltComputation();
         }
 
