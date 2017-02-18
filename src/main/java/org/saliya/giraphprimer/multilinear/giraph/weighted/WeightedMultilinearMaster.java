@@ -97,9 +97,8 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             // no need of aggregated value for each 2^k
         }
 
-        // TODO: testing with 1 iteration
-//        if (iter == twoRaisedToK){
-        if (iter == 1){
+        if (iter == twoRaisedToK){
+//        if (iter == 1){
             double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
             long currentTime = System.currentTimeMillis();
             long duration = currentTime - startTime;
