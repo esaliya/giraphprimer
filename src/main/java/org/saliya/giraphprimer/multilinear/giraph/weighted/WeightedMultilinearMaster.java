@@ -95,12 +95,14 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             // no need of aggregated value for each 2^k
         }
 
-        if (iter == twoRaisedToK){
-            // TODO: do final computation of results
+        // TODO: testing with 1 iteration
+//        if (iter == twoRaisedToK){
+        if (iter == 1){
             double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
             long duration = System.currentTimeMillis() - startTime;
             System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
-                    duration +  " ms");
+                    duration +  " ms iterations " + iter + " of " + twoRaisedToK + " expectedTime: " +
+                    duration*twoRaisedToK + " ms");
             haltComputation();
         }
 
