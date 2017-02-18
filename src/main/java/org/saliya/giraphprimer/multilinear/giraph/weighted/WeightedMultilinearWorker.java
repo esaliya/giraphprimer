@@ -5,6 +5,7 @@ import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ArrayListWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.saliya.giraphprimer.multilinear.Utils;
 import org.saliya.giraphprimer.multilinear.giraph.DoubleArrayListWritable;
@@ -36,8 +37,11 @@ public class WeightedMultilinearWorker extends BasicComputation<
             Iterable<IntMatrixWritable> messages) throws IOException {
 
         WeightedVData weightedVData = vertex.getValue();
+        long t = System.currentTimeMillis();
+
         long ss = getSuperstep();
         if (ss == 0){
+
             // aggregate original value (this is used to find max weight) before the update
             aggregate(WeightedMultilinearMaster.W_MULTILINEAR_WCOLL,
                     new DoubleArrayListWritable(weightedVData.vertexWeight));
@@ -47,6 +51,7 @@ public class WeightedMultilinearWorker extends BasicComputation<
                                     roundingFactor));
             long[] nums = this.<LongArrayWritable>getBroadcast(WeightedMultilinearMaster.W_MULTILINEAR_RANDOM_NUMS).getData();
             weightedVData.uniqueRandomSeed = nums[weightedVData.vertexId];
+            weightedVData.compDuration += System.currentTimeMillis() - t;
             return;
         } else if (ss == 1){
             weightedVData.r = this.<IntWritable>getBroadcast(WeightedMultilinearMaster.W_MULTILINEAR_R).get();
@@ -102,7 +107,6 @@ public class WeightedMultilinearWorker extends BasicComputation<
         } else {
             // business logic only if localSS != 0
 
-            long t = System.currentTimeMillis();
             TreeMap<Integer, IntMatrixWritable> messagesSortedByVertexId = new TreeMap<>();
             for (IntMatrixWritable message: messages){
                 messagesSortedByVertexId.put(message.getVertexId(), message);
@@ -181,8 +185,10 @@ public class WeightedMultilinearWorker extends BasicComputation<
 
         }
 
+        weightedVData.compDuration += System.currentTimeMillis() - t;
 
         if (iter == (wmwc.twoRaisedToK -1) && localSS == (wmwc.workerSteps -1)){
+            t = System.currentTimeMillis();
             // Now, we can change the totalSumTable to the decisionTable
             int[][] tableTotalSum = weightedVData.totalSumTable;
             for (int kPrime = 0; kPrime <= k; kPrime++) {
@@ -191,7 +197,9 @@ public class WeightedMultilinearWorker extends BasicComputation<
                 }
             }
             double nodeLocalBestScore = getScoreFromTablePower(tableTotalSum, wmwc.alphaMax);
+            weightedVData.compDuration += System.currentTimeMillis() - t;
             aggregate(WeightedMultilinearMaster.W_MULTILINEAR_MAXSUM, new DoubleWritable(nodeLocalBestScore));
+            aggregate(WeightedMultilinearMaster.W_MULTILINEAR_COMP_TIME, new LongWritable(weightedVData.compDuration));
             vertex.voteToHalt();
         }
     }

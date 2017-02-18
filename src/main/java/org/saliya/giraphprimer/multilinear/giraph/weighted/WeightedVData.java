@@ -22,6 +22,8 @@ public class WeightedVData implements WritableComparable<WeightedVData>{
     public Random random;
     public int r;
 
+    public long compDuration = 0;
+
     public WeightedVData(){}
 
     public WeightedVData(int vertexId, double vertexWeight){
@@ -45,7 +47,7 @@ public class WeightedVData implements WritableComparable<WeightedVData>{
         out.writeInt(dimBLen);
         out.writeInt(((cumulativeCompletionVariables != null && cumulativeCompletionVariables.length > 0) ?
                 cumulativeCompletionVariables.length : 0));
-
+        out.writeLong(compDuration);
         if (optTable!=null && optTable.length > 0) {
             for (int[] arr : optTable) {
                 for (int a : arr) {
@@ -82,6 +84,8 @@ public class WeightedVData implements WritableComparable<WeightedVData>{
         int dimALen = in.readInt();
         int dimBLen = in.readInt();
         int cumulativeLen = in.readInt();
+
+        compDuration = in.readLong();
 
         if (dimALen > 0 && dimBLen > 0)
         optTable = new int[dimALen][dimBLen];

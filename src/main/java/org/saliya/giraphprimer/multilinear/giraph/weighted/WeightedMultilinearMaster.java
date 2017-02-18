@@ -2,10 +2,12 @@ package org.saliya.giraphprimer.multilinear.giraph.weighted;
 
 import org.apache.giraph.aggregators.BasicAggregator;
 import org.apache.giraph.aggregators.DoubleMaxAggregator;
+import org.apache.giraph.aggregators.LongMaxAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.saliya.giraphprimer.multilinear.GaloisField;
 import org.saliya.giraphprimer.multilinear.Polynomial;
 import org.saliya.giraphprimer.multilinear.Utils;
@@ -28,6 +30,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     public static final String W_MULTILINEAR_WCOLL="w.multilinear.wcoll";
     public static final String W_MULTILINEAR_R="w.multilinear.r";
     public static final String W_MULTILINEAR_RANDOM_NUMS="w.multilinear.random.nums";
+    public static final String W_MULTILINEAR_COMP_TIME="w.multilinear.comp.time";
 
     public static GaloisField gf;
 
@@ -42,7 +45,6 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     int twoRaisedToK;
 
     long startTime;
-    long compStartTime;
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public WeightedMultilinearMaster() {
@@ -75,7 +77,6 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
                 throw new IllegalArgumentException("r must be a positive integer or 0");
             }
             broadcast(W_MULTILINEAR_R, new IntWritable(r));
-            compStartTime = System.currentTimeMillis();
             return;
         }
 
@@ -102,11 +103,10 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
             long currentTime = System.currentTimeMillis();
             long duration = currentTime - startTime;
-            long compDuration = currentTime - compStartTime;
-            long initDuration = compStartTime - startTime;
+            long compDuration = this.<LongWritable>getAggregatedValue(W_MULTILINEAR_COMP_TIME).get();
             System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
-                    duration +  " ms iterations " + iter + " of " + twoRaisedToK + " expectedTime: " +
-                    (compDuration*twoRaisedToK+initDuration) + " ms");
+                    duration +  " ms iterations " + iter + " of " + twoRaisedToK + " compDuration: " +
+                    compDuration + " ms overhead(%)" + (compDuration*100.0/duration));
             haltComputation();
         }
 
@@ -134,6 +134,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         int maxIterations = k-1; // the original pregel loop was from 2 to k (including k), so that's (k-2)+1 times
         workerSteps = maxIterations+1; // the first worker step is used to initialize, so need k iterations
         registerAggregator(W_MULTILINEAR_MAXSUM, DoubleMaxAggregator.class);
+        registerAggregator(W_MULTILINEAR_COMP_TIME, LongMaxAggregator.class);
     }
 
     public static class DoubleCollector extends BasicAggregator<DoubleArrayListWritable>{
