@@ -39,6 +39,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
     double epsilon,delta,alphaMax;
     long mainSeed;
     String outputFile;
+    String vertexInputPath;
     double roundingFactor;
     public int r;
     int workerSteps;
@@ -104,7 +105,8 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
             long currentTime = System.currentTimeMillis();
             long duration = currentTime - startTime;
             long compDuration = this.<LongWritable>getAggregatedValue(W_MULTILINEAR_COMP_TIME).get();
-            System.out.println("*** End of program bestScore for this giraph run: " + bestScore + " time: " +
+            System.out.println("*** End of program (" + vertexInputPath +") bestScore for this giraph run: " + bestScore + " " +
+                    "time: " +
                     duration +  " ms iterations " + iter + " of " + twoRaisedToK + " compDuration: " +
                     compDuration + " ms overhead(%)" + (100.0-(compDuration*100.0/duration)));
             haltComputation();
@@ -121,6 +123,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         alphaMax = conf.getDouble(WeightedMultilinearMain.W_MULTILINEAR_ALPHAMAX, -1.0);
         mainSeed = conf.getLong(WeightedMultilinearMain.W_MULTILINEAR_MAIN_SEED, -1);
         outputFile = conf.get(WeightedMultilinearMain.W_MULTILINEAR_OUTPUT);
+        vertexInputPath = conf.get(WeightedMultilinearMain.W_VERTEX_INPUT_PATH);
 
         roundingFactor = 1+delta;
         registerAggregator(W_MULTILINEAR_WCOLL, DoubleCollector.class);

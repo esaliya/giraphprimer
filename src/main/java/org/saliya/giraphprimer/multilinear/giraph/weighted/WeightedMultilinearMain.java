@@ -19,6 +19,7 @@ public class WeightedMultilinearMain {
     public static final String W_MULTILINEAR_ALPHAMAX = "w.multilinear.alphamax";
     public static final String W_MULTILINEAR_MAIN_SEED = "w.multilinear.main.seed";
     public static final String W_MULTILINEAR_OUTPUT = "w.multilinear.output";
+    public static final String W_VERTEX_INPUT_PATH = "w.vertex.input.path";
 
     static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     public static void main(String[] args) throws Exception {
@@ -75,6 +76,7 @@ public class WeightedMultilinearMain {
 //            conf.setLong(W_MULTILINEAR_MAIN_SEED, seed);
             conf.setLong(W_MULTILINEAR_MAIN_SEED, System.currentTimeMillis());
             conf.set(W_MULTILINEAR_OUTPUT, output);
+            conf.set(W_VERTEX_INPUT_PATH, vertexInputPath);
 
             GiraphRunner runner = new GiraphRunner();
             runner.setConf(conf);
