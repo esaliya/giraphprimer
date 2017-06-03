@@ -22,6 +22,10 @@ public class DoubleArrayListWritable implements Writable {
         data.add(d);
     }
 
+    public void addDouble(double d){
+        this.data.add(d);
+    }
+
     public ArrayList<Double> getData() { return data; }
     @Override
     public void write(DataOutput out) throws IOException {

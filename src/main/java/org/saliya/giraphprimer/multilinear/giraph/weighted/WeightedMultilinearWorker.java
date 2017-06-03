@@ -196,9 +196,9 @@ public class WeightedMultilinearWorker extends BasicComputation<
                     tableTotalSum[kPrime][rPrime] = (tableTotalSum[kPrime][rPrime] > 0) ? 1 : -1;
                 }
             }
-            double nodeLocalBestScore = getScoreFromTablePower(tableTotalSum, wmwc.alphaMax);
+            DoubleArrayListWritable nodeLocalBestScoreInfo = getScoreFromTablePower(tableTotalSum, wmwc.alphaMax, weightedVData.vertexId);
             weightedVData.compDuration += System.currentTimeMillis() - t;
-            aggregate(WeightedMultilinearMaster.W_MULTILINEAR_MAXSUM, new DoubleWritable(nodeLocalBestScore));
+            aggregate(WeightedMultilinearMaster.W_MULTILINEAR_RESULT, nodeLocalBestScoreInfo);
             aggregate(WeightedMultilinearMaster.W_MULTILINEAR_COMP_TIME, new LongWritable(weightedVData.compDuration));
             vertex.voteToHalt();
         }
@@ -214,8 +214,10 @@ public class WeightedMultilinearWorker extends BasicComputation<
     // This is node local best score, not the global best
     // to get the global best we have to find the max of these local best scores,
     // which we'll do in the master using aggregation
-    public double getScoreFromTablePower(int[][] existenceForNode, double alpha) {
-        double nodeLocalBestScore = 0;
+    public DoubleArrayListWritable getScoreFromTablePower(int[][] existenceForNode, double alpha, int vertexId) {
+        double nodeLocalBestScore = -1;
+        int nodeLocalBestScoreK = -1;
+        int nodeLocalBestScoreR = -1;
         for (int kPrime = 1; kPrime < existenceForNode.length; kPrime++) {
             for (int rPrime = 0; rPrime < existenceForNode[0].length; rPrime++) {
                 if (existenceForNode[kPrime][rPrime] == 1) {
@@ -226,11 +228,22 @@ public class WeightedMultilinearWorker extends BasicComputation<
                     int unroundedSize = Math.max(kPrime, unroundedPrize);
                     double score = Utils.BJ(alpha, unroundedPrize, unroundedSize);
                     //System.out.println("Score is " + score);
-                    nodeLocalBestScore = Math.max(nodeLocalBestScore, score);
+                    if (score > nodeLocalBestScore){
+                        nodeLocalBestScore = score;
+                        nodeLocalBestScoreK = kPrime;
+                        nodeLocalBestScoreR = rPrime;
+                    }
                 }
             }
         }
-        return nodeLocalBestScore;
+
+        DoubleArrayListWritable ret = new DoubleArrayListWritable();
+        ret.addDouble(vertexId);
+        ret.addDouble(nodeLocalBestScoreK);
+        ret.addDouble(nodeLocalBestScoreR);
+        ret.addDouble(nodeLocalBestScore);
+
+        return ret;
     }
 
 }

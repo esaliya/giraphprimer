@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 public class WeightedMultilinearMaster extends DefaultMasterCompute {
     public static final String W_MULTILINEAR_MAXSUM ="w.multilinear.maxsum";
     public static final String W_MULTILINEAR_WCOLL="w.multilinear.wcoll";
+    public static final String W_MULTILINEAR_RESULT="w.multilinear.result";
     public static final String W_MULTILINEAR_R="w.multilinear.r";
     public static final String W_MULTILINEAR_RANDOM_NUMS="w.multilinear.random.nums";
     public static final String W_MULTILINEAR_COMP_TIME="w.multilinear.comp.time";
@@ -101,14 +102,31 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
 
         if (iter == twoRaisedToK){
 //        if (iter == 1){
-            double bestScore = this.<DoubleWritable>getAggregatedValue(W_MULTILINEAR_MAXSUM).get();
+            ArrayList<Double> bestScoreInfo = this.<DoubleArrayListWritable>
+                    getAggregatedValue(W_MULTILINEAR_RESULT).getData();
+            double bestScore = -1;
+            int bestScoreIdx = -1;
+            for (int i = 0; i < bestScoreInfo.size(); i+=4){
+                Double localBestScore = bestScoreInfo.get(i + 3);
+                if (localBestScore > bestScore){
+                    bestScore = localBestScore;
+                    bestScoreIdx = i;
+                }
+            }
+
             long currentTime = System.currentTimeMillis();
             long duration = currentTime - startTime;
             long compDuration = this.<LongWritable>getAggregatedValue(W_MULTILINEAR_COMP_TIME).get();
-            System.out.println("*** End of program (" + vertexInputPath +") bestScore for this giraph run: " + bestScore + " " +
-                    "time: " +
-                    duration +  " ms iterations " + iter + " of " + twoRaisedToK + " compDuration: " +
-                    compDuration + " ms overhead(%)" + (100.0-(compDuration*100.0/duration)));
+            System.out.println("*** End of program (" + vertexInputPath
+                    +") bestScore: "+ bestScore
+                    + " bestScoreVertexId: " + (bestScoreInfo.get(bestScoreIdx))
+                    + " bestScoreK: " + (bestScoreInfo.get(bestScoreIdx+1))
+                    + " bestScoreR: " + (bestScoreInfo.get(bestScoreIdx+2))
+                    + " time: " + duration
+                    +  " ms iterations " + iter
+                    + " of " + twoRaisedToK
+                    + " compDuration: " + compDuration
+                    + " ms overhead(%)" + (100.0-(compDuration*100.0/duration)));
             haltComputation();
         }
 
@@ -127,6 +145,7 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
 
         roundingFactor = 1+delta;
         registerAggregator(W_MULTILINEAR_WCOLL, DoubleCollector.class);
+        registerAggregator(W_MULTILINEAR_RESULT, DoubleCollector.class);
 
         long mainSeed = conf.getLong(WeightedMultilinearMain.W_MULTILINEAR_MAIN_SEED, -1);
         Random r = new Random(mainSeed);
