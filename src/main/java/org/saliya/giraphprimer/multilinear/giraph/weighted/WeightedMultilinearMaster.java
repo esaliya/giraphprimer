@@ -88,10 +88,10 @@ public class WeightedMultilinearMaster extends DefaultMasterCompute {
         // The external loop number that goes from 0 to twoRaisedToK (excluding)
         int iter = (int)effectiveSS / workerSteps;
 
-        if ((iter%10 == 0 || iter < 10) && localSS == 0 ){
+//        if ((iter%10 == 0 || iter < 10) && localSS == 0 ){
             System.out.println("*** Master starting iter " + iter + " at " + dateFormat.format(new Date()) + " " +
                     "elapsed " + Utils.formatElapsedMillis(System.currentTimeMillis() - startTime));
-        }
+//        }
 
         if (effectiveSS > 0 && localSS == 0){
             // this indicates previous 2^k loop has finished,
